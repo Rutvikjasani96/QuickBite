@@ -1,15 +1,18 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:quickbite/screens/data_collection/data_collection.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
+
 import 'package:quickbite/variables_pro.dart';
 
-import '../bootom_navigation_bar/bottom_navigaton.dart';
 import '../cart/cart.dart';
 import '../edit_profile_page/edit_profile_page.dart';
 import 'profile_details_box/profile_details_box.dart';
 import 'profile_details_row.dart';
 import 'profile_divider.dart';
-import 'profile_image.dart';
+
 import 'profile_name.dart';
 import 'profile_nick_name.dart';
 import 'profile_title_bar.dart';
@@ -24,16 +27,28 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _userdetailsdetail = Hive.box('usrDetailsDetail');
-  
+  XFile? _image; // Initialize with null
+  var imageHv = Hive.box<XFile>('image');
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = pickedFile;
+    });
+    await imageHv.put('image', _image!);
+  }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (_userdetailsdetail.get('usrDetailsDetail') != null) {
       profileDetailsDetail = _userdetailsdetail.get('usrDetailsDetail');
     }
-    
+    if (imageHv.get('image') != null) {
+      _image = imageHv.get('image');
+    }
   }
 
   @override
@@ -45,7 +60,30 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(
             height: 10,
           ),
-          ProfileImage(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await _pickImage();
+                },
+                child: Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey[200],
+                  ),
+                  child: _image == null
+                      ? LottieBuilder.asset("assets/lotties/person.json",)
+                      : CircleAvatar(
+                          backgroundImage: FileImage(File(_image!.path)),
+                          radius: 50,
+                        ),
+                ),
+              ),
+            ],
+          ),
           SizedBox(
             height: 10,
           ),

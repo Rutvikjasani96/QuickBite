@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import for SystemChrome
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:quickbite/screens/bootom_navigation_bar/bottom_navigaton.dart';
 
 import 'package:quickbite/screens/get_started/get_started.dart';
@@ -11,10 +12,13 @@ import 'package:quickbite/screens/profile_page/variables_profile.dart';
 import 'package:quickbite/screens/splash_screen/splash_screen.dart';
 import 'package:quickbite/variables_pro.dart';
 
+import 'adapter.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
+  Hive.registerAdapter(XFileAdapter());
   var box = await Hive.openBox('IsLoggedIn');
   var boxfavorites = await Hive.openBox('favorites');
   var boxfavoriteImage = await Hive.openBox('favoritesImage');
@@ -25,7 +29,7 @@ void main() async {
   var boxnickname = await Hive.openBox('nickname');
   var boxaddress = await Hive.openBox('address');
   var boxcart = await Hive.openBox('cart');
-  
+  var imageHv = await Hive.openBox<XFile>('image');
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
